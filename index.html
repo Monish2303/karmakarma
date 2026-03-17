@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Karma Trinity — Experience Survey</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: Georgia, serif; min-height: 100vh; }
+
+    #topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: #080808; border-bottom: 1px solid #161616;
+      padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .brand { color: #c0392b; font-size: 10px; letter-spacing: 4px; font-family: sans-serif; font-weight: 700; }
+    .counter { color: #444; font-size: 11px; font-family: sans-serif; letter-spacing: 1px; }
+    #progress-bar { display: flex; gap: 5px; align-items: center; }
+    .pdot { height: 2px; background: #1e1e1e; border-radius: 2px; width: 7px; transition: all 0.4s ease; }
+    .pdot.active { background: #c0392b; width: 26px; }
+    .pdot.done { background: #6b1414; }
+
+    #container { max-width: 660px; margin: 0 auto; padding: 52px 24px 100px; }
+
+    .intro-block { margin-bottom: 52px; }
+    .eyebrow { color: #c0392b; font-size: 10px; letter-spacing: 4px; font-family: sans-serif; margin-bottom: 16px; display: block; }
+    .intro-block h1 { font-size: 28px; font-weight: 400; letter-spacing: 1px; line-height: 1.4; margin-bottom: 14px; color: #f0f0f0; }
+    .intro-block p { color: #777; font-size: 14px; line-height: 1.9; }
+    .rule { width: 36px; height: 1px; background: #c0392b; margin-top: 24px; }
+
+    .sec-header { margin-bottom: 32px; }
+    .tagline { color: #555; font-size: 11px; letter-spacing: 2px; font-family: sans-serif; margin-bottom: 10px; display: block; }
+    .intro-text { color: #999; font-size: 14px; line-height: 1.9; }
+
+    .features-box {
+      background: #0f0f0f; border: 1px solid #1a1a1a;
+      border-left: 2px solid #c0392b; border-radius: 6px;
+      padding: 20px 24px; margin-bottom: 40px;
+    }
+    .feat-label { color: #555; font-size: 10px; letter-spacing: 3px; font-family: sans-serif; margin-bottom: 16px; display: block; }
+    .feat-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .feat-dot { width: 4px; height: 4px; background: #c0392b; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+    .feat-item p { color: #bbb; font-size: 13px; line-height: 1.8; }
+
+    .price-tag {
+      display: inline-block; background: #130808; border: 1px solid #c0392b;
+      border-radius: 4px; color: #c0392b; font-family: sans-serif;
+      font-size: 13px; letter-spacing: 2px; padding: 6px 14px; margin-bottom: 32px;
+    }
+
+    .qblock { margin-bottom: 44px; }
+    .qtext {
+      font-size: 15px; color: #ddd; margin-bottom: 18px; line-height: 1.7;
+      border-left: 1px solid #222; padding-left: 16px;
+    }
+    .qsub { font-size: 12px; color: #555; font-family: sans-serif; letter-spacing: 1px; display: block; margin-top: 6px; }
+
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .obtn {
+      text-align: left; padding: 13px 18px;
+      background: #0d0d0d; border: 1px solid #1e1e1e;
+      border-radius: 5px; color: #777; cursor: pointer; font-size: 13px;
+      transition: all 0.2s; font-family: Georgia, serif;
+      display: flex; align-items: center; gap: 14px; width: 100%;
+    }
+    .obtn:hover { border-color: #3a1010; color: #aaa; }
+    .obtn.sel { background: #130808; border-color: #c0392b; color: #eee; }
+    .radio-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 1px solid #333; background: transparent; flex-shrink: 0; transition: all 0.2s;
+    }
+    .obtn.sel .radio-dot { background: #c0392b; border-color: #c0392b; }
+    .chk-box {
+      width: 12px; height: 12px; border-radius: 2px;
+      border: 1px solid #333; background: transparent; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; font-size: 9px; color: transparent;
+    }
+    .obtn.sel .chk-box { background: #c0392b; border-color: #c0392b; color: #fff; }
+
+    .scale-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .scale-btn {
+      width: 52px; height: 52px; background: #0d0d0d; border: 1px solid #1e1e1e;
+      border-radius: 4px; color: #444; cursor: pointer; font-size: 14px;
+      transition: all 0.2s; font-family: Georgia, serif;
+    }
+    .scale-btn.sel { background: #c0392b; border-color: #c0392b; color: #fff; }
+    .scale-labels { display: flex; justify-content: space-between; max-width: 580px; margin-top: 8px; }
+    .scale-labels span { color: #444; font-size: 10px; font-family: sans-serif; letter-spacing: 1px; }
+
+    textarea {
+      width: 100%; background: #0d0d0d; border: 1px solid #1e1e1e;
+      border-radius: 5px; color: #ddd; padding: 14px 18px; font-size: 13px;
+      font-family: Georgia, serif; resize: vertical; outline: none;
+      line-height: 1.8; transition: border 0.2s;
+    }
+    textarea:focus { border-color: #3a1010; }
+    textarea::placeholder { color: #333; }
+
+    .bundle-highlight {
+      background: #0f0f0f; border: 1px solid #c0392b;
+      border-radius: 6px; padding: 18px 22px; margin-bottom: 36px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .bname { color: #eee; font-size: 14px; letter-spacing: 1px; margin-bottom: 4px; }
+    .bsave { color: #777; font-size: 11px; font-family: sans-serif; }
+    .bprice { color: #c0392b; font-family: sans-serif; font-size: 16px; letter-spacing: 2px; font-weight: 700; }
+
+    #nav-bar { display: flex; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #161616; }
+    .btn-next {
+      background: #c0392b; border: none; border-radius: 5px;
+      color: #fff; padding: 13px 36px; cursor: pointer; font-size: 11px;
+      font-family: sans-serif; letter-spacing: 2px; font-weight: 700;
+    }
+    .btn-next:hover { background: #a93226; }
+
+    #thank-you {
+      display: none; min-height: 100vh; align-items: center;
+      justify-content: center; text-align: center; padding: 24px;
+    }
+    #thank-you.show { display: flex; }
+    .ty-circle {
+      width: 72px; height: 72px; border: 1px solid #c0392b; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px; font-size: 28px; color: #c0392b;
+    }
+    #thank-you h1 { font-size: 24px; font-weight: 400; letter-spacing: 3px; margin-bottom: 14px; color: #eee; }
+    #thank-you p { color: #666; font-size: 14px; line-height: 1.9; max-width: 420px; margin: 0 auto; }
+    .ty-rule { width: 40px; height: 1px; background: #c0392b; margin: 24px auto 0; }
+    .ty-brand { color: #c0392b; font-size: 10px; margin-top: 18px; letter-spacing: 4px; font-family: sans-serif; }
+  </style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="brand">KARMA AUTOMOTIVE</span>
+  <div id="progress-bar"></div>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div id="main">
+  <div id="container"></div>
+</div>
+
+<div id="thank-you">
+  <div>
+    <div class="ty-circle">&#10003;</div>
+    <h1>Thank you.</h1>
+    <p>Your feedback has been received. As a selected preview participant, your insights will directly shape the Karma Trinity packages.</p>
+    <div class="ty-rule"></div>
+    <p class="ty-brand">KARMA TRINITY</p>
+  </div>
+</div>
+
+<script>
+const sections = [
+  {
+    id: "about",
+    label: "About You",
+    questions: [
+      { id: "q_role", type: "single", text: "What best describes you?", options: ["Current Karma Owner","Luxury Vehicle Owner","EV Owner","Automotive Enthusiast","Other"] },
+      { id: "q_familiarity", type: "single", text: "How familiar are you with in-vehicle technology and software upgrades?", options: ["Very familiar","Somewhat familiar","Slightly familiar","Not familiar at all"] },
+      { id: "q_nav", type: "single", text: "What navigation system do you primarily use in your car?", options: ["Built-in navigation","Apple CarPlay / Android Auto","Google Maps / Waze on phone","I don't use navigation regularly"] },
+      { id: "q_ota", type: "single", text: "Have you used Over-The-Air (OTA) software upgrades in a vehicle before?", options: ["Yes","No","Not sure"] }
+    ]
+  },
+  {
+    id: "zenith",
+    label: "Package 1 — Karma Zenith",
+    tagline: "Audio Suite",
+    price: "$2,500",
+    intro: "The Zenith acts as your real-time digital sound engineer, delivering an uncompromising auditory experience from the moment you start driving.",
+    features: [
+      "Adaptive EQ — AI automatically tunes your audio mix in real-time based on what you're listening to: bass-heavy playlists, podcasts, news, or audiobooks",
+      "Active Noise Cancellation — dynamically eliminates road drone and wind interference, keeping the cabin a pristine acoustic environment",
+      "Seamless audio transitions — moves between media types without you ever needing to touch a dial"
+    ],
+    questions: [
+      { id: "q_z1", type: "single", text: "How compelling is the Zenith Audio Suite overall?", options: ["Extremely compelling","Very compelling","Somewhat compelling","Not compelling"] },
+      { id: "q_z2", type: "multi", text: "Which Zenith features appeal to you most? (Select all that apply)", options: ["Adaptive EQ","Active Noise Cancellation","Seamless audio transitions across media types"] },
+      { id: "q_z_price", type: "single", text: "The Zenith Audio Suite is priced at $2,500. Which best reflects your reaction to this price?", options: ["Fair — I would expect to pay around this","A bit high — but I would consider it","Too expensive for this feature set","Great value — I would pay more"] },
+      { id: "q_z_wtp", type: "single", text: "If you feel the Zenith Audio Suite should be priced at a valuation other than $2,500, which range would be appropriate?", options: ["Under $1,000","$1,000 – $1,500","$1,500 – $2,000","$2,000 – $2,500","$2,500 (current price is appropriate)"] },
+      { id: "q_z_open", type: "text", text: "Any other thoughts on the Zenith package?" }
+    ]
+  },
+  {
+    id: "nexus",
+    label: "Package 2 — Karma Nexus",
+    tagline: "Lifestyle & Routing Agent",
+    price: "$3,500",
+    intro: "The Nexus transforms your car into a proactive lifestyle concierge — anticipating where you need to go before you even ask.",
+    features: [
+      "Routine-Based Navigation — learns your weekly patterns and auto-queues routes, with early departure alerts sent to your phone",
+      "VIP Event-Aware Routing — surfaces exclusive nearby events (gallery openings, Michelin pop-ups, VIP concerts) matched to your preferences, with Ticketmaster, StubHub, and restaurant booking integration",
+      "Calendar & Meeting Intelligence — reads your calendar for meetings and flights, suggests when to leave, and offers to dial you into Zoom or Teams directly from the dashboard if you are running late"
+    ],
+    questions: [
+      { id: "q_n1", type: "single", text: "How compelling is the Karma Nexus overall?", options: ["Extremely compelling","Very compelling","Somewhat compelling","Not compelling"] },
+      { id: "q_n2", type: "multi", text: "Which Nexus features would you use most? (Select all that apply)", options: ["Routine-Based Navigation","VIP Event-Aware Routing","Calendar & Meeting Intelligence"] },
+      { id: "q_n3", type: "single", text: "How do you feel about the car accessing your location history and calendar data to power these features?", options: ["No concern — worth the convenience","Slight concern but acceptable","Moderate concern","Major concern — dealbreaker"] },
+      { id: "q_n_price", type: "single", text: "The Karma Nexus is priced at $3,500. Which best reflects your reaction to this price?", options: ["Fair — I would expect to pay around this","A bit high — but I would consider it","Too expensive for this feature set","Great value — I would pay more"] },
+      { id: "q_n_wtp", type: "single", text: "If you feel the Karma Nexus should be priced at a valuation other than $3,500, which range would be appropriate?", options: ["Under $1,500","$1,500 – $2,000","$2,000 – $2,500","$2,500 – $3,000","$3,000 – $3,500","$3,500 (current price is appropriate)"] },
+      { id: "q_n_open", type: "text", text: "Any other thoughts on the Nexus package?" }
+    ]
+  },
+  {
+    id: "custom",
+    label: "Package 3 — Karma Customization",
+    tagline: "Personalization Suite",
+    price: "$3,000",
+    intro: "The Customization package reimagines the entire in-cabin experience around your identity and preferences.",
+    features: [
+      "Generative AI Voice Assistant — edge-native conversational AI that handles complex multi-part requests with zero latency, even offline (e.g. Navigate to the gallery, dim the lighting, and queue my evening playlist)",
+      "Cinematic Dark Luxury UI — generative metallic textures, obsidian particle flows, and shadow-play that react to your driving mode, honoring Karma's minimalist black aesthetic",
+      "Customized Dashboard — prioritized widgets and a fully personalized interface layout",
+      "Personalized Greeting Screen — startup message with your name, time, date, and real-time weather",
+      "Time-Aware Ambient Lighting — cabin lighting automatically shifts with the time of day with advanced mood profile support"
+    ],
+    questions: [
+      { id: "q_c1", type: "single", text: "How compelling is the Customization package overall?", options: ["Extremely compelling","Very compelling","Somewhat compelling","Not compelling"] },
+      { id: "q_c2", type: "multi", text: "Which Customization features appeal to you most? (Select all that apply)", options: ["Generative AI Voice Assistant","Cinematic Dark Luxury UI","Customized Dashboard","Personalized Greeting Screen","Time-Aware Ambient Lighting"] },
+      { id: "q_c_price", type: "single", text: "The Customization package is priced at $3,000. Which best reflects your reaction to this price?", options: ["Fair — I would expect to pay around this","A bit high — but I would consider it","Too expensive for this feature set","Great value — I would pay more"] },
+      { id: "q_c_wtp", type: "single", text: "If you feel the Karma Customization package should be priced at a valuation other than $3,000, which range would be appropriate?", options: ["Under $1,000","$1,000 – $1,500","$1,500 – $2,000","$2,000 – $2,500","$2,500 – $3,000","$3,000 (current price is appropriate)"] },
+      { id: "q_c_open", type: "text", text: "Any other thoughts on the Customization package?" }
+    ]
+  },
+  {
+    id: "bundle",
+    label: "Karma Trinity Bundle",
+    questions: [
+      { id: "q_purchase", type: "multi", text: "Which of the following packages would you purchase? (Select all that apply)", options: ["Zenith — Audio Suite ($2,500)","Nexus — Lifestyle & Routing ($3,500)","Customization — Personalization Suite ($3,000)","Karma Trinity Bundle — All three ($9,000)","None at this time"] },
+      { id: "q_bundle_likelihood", type: "scale", text: "On a scale of 1–10, how likely are you to purchase all three packages as the Karma Trinity Bundle at the full combined price of $9,000?", sub: "1 = Not at all likely   ·   10 = Extremely likely" }
+    ]
+  },
+  {
+    id: "bundle_discount",
+    label: "Karma Trinity Bundle",
+    questions: [
+      { id: "q_bundle_discount", type: "scale", text: "The Karma Trinity Bundle is available at $7,995 — a 10% discount off buying each package separately. How likely are you to purchase the bundle at this discounted price?", sub: "1 = Not at all likely   ·   10 = Extremely likely" },
+      { id: "q_bundle_price", type: "single", text: "Which best reflects your reaction to the Karma Trinity Bundle price of $7,995?", options: ["Great value — the discount makes it a no-brainer","Fair — I would consider it","A bit high — I would only buy individual packages","Too expensive overall"] },
+      { id: "q_final", type: "text", text: "Any final thoughts, feature requests, or concerns about the Karma Trinity packages?" }
+    ]
+  }
+];
+
+let current = 0;
+const answers = {};
+
+function updateBar() {
+  const bar = document.getElementById("progress-bar");
+  bar.innerHTML = "";
+  sections.forEach((_, i) => {
+    const d = document.createElement("div");
+    d.className = "pdot" + (i === current ? " active" : i < current ? " done" : "");
+    bar.appendChild(d);
+  });
+  document.getElementById("counter").textContent = (current + 1) + " / " + sections.length;
+}
+
+function esc(str) {
+  return str.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
+function render() {
+  updateBar();
+  const sec = sections[current];
+  const c = document.getElementById("container");
+  c.innerHTML = "";
+
+  if (current === 0) {
+    c.innerHTML += '<div class="intro-block">' +
+      '<span class="eyebrow">EXCLUSIVE PREVIEW</span>' +
+      '<h1>Karma Trinity —<br>Experience Survey</h1>' +
+      '<p>You have been selected to preview Karma\'s three next-generation infotainment packages. Your feedback will directly shape what we bring to market. This survey takes approximately 5 minutes.</p>' +
+      '<div class="rule"></div></div>';
+  }
+
+  let hdr = '<div class="sec-header">' +
+    '<span class="eyebrow">' + sec.label.toUpperCase() + '</span>';
+  if (sec.tagline) hdr += '<span class="tagline">' + sec.tagline.toUpperCase() + '</span>';
+  if (sec.intro) hdr += '<p class="intro-text">' + sec.intro + '</p>';
+  hdr += '</div>';
+  c.innerHTML += hdr;
+
+  if (sec.price) {
+    c.innerHTML += '<div class="price-tag">' + sec.price + '</div>';
+  }
+
+
+  if (sec.features) {
+    let fh = '<div class="features-box"><span class="feat-label">PACKAGE INCLUDES</span>';
+    sec.features.forEach(function(f) {
+      fh += '<div class="feat-item"><div class="feat-dot"></div><p>' + f + '</p></div>';
+    });
+    fh += '</div>';
+    c.innerHTML += fh;
+  }
+
+  sec.questions.forEach(function(q) {
+    let qh = '<div class="qblock" id="qb_' + q.id + '">' +
+      '<p class="qtext">' + q.text + (q.sub ? '<span class="qsub">' + q.sub + '</span>' : '') + '</p>';
+
+    if (q.type === "single") {
+      qh += '<div class="opts">';
+      q.options.forEach(function(opt) {
+        const sel = answers[q.id] === opt ? " sel" : "";
+        qh += '<button class="obtn' + sel + '" onclick="pickSingle(\'' + q.id + '\',this,\'' + esc(opt) + '\')">' +
+          '<div class="radio-dot"></div>' + opt + '</button>';
+      });
+      qh += '</div>';
+    }
+
+    if (q.type === "multi") {
+      qh += '<div class="opts">';
+      q.options.forEach(function(opt) {
+        const arr = answers[q.id] || [];
+        const sel = arr.includes(opt) ? " sel" : "";
+        const chk = sel ? "&#10003;" : "";
+        qh += '<button class="obtn' + sel + '" onclick="pickMulti(\'' + q.id + '\',this,\'' + esc(opt) + '\')">' +
+          '<div class="chk-box">' + chk + '</div>' + opt + '</button>';
+      });
+      qh += '</div>';
+    }
+
+    if (q.type === "scale") {
+      qh += '<div class="scale-row">';
+      for (let n = 1; n <= 10; n++) {
+        const sel = answers[q.id] === n ? " sel" : "";
+        qh += '<button class="scale-btn' + sel + '" onclick="pickScale(\'' + q.id + '\',' + n + ')">' + n + '</button>';
+      }
+      qh += '</div><div class="scale-labels"><span>NOT LIKELY</span><span>EXTREMELY LIKELY</span></div>';
+    }
+
+    if (q.type === "text") {
+      qh += '<textarea rows="4" placeholder="Share your thoughts..." onchange="answers[\'' + q.id + '\']=this.value">' + (answers[q.id] || "") + '</textarea>';
+    }
+
+    qh += '</div>';
+    c.innerHTML += qh;
+  });
+
+  c.innerHTML += '<div id="nav-bar"><button class="btn-next" onclick="goNext()">' +
+    (current === sections.length - 1 ? "SUBMIT &#8594;" : "CONTINUE &#8594;") + '</button></div>';
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function pickSingle(qid, btn, val) {
+  answers[qid] = val;
+  btn.closest(".opts").querySelectorAll(".obtn").forEach(function(b) { b.classList.remove("sel"); });
+  btn.classList.add("sel");
+}
+
+function pickMulti(qid, btn, val) {
+  if (!answers[qid]) answers[qid] = [];
+  if (answers[qid].includes(val)) {
+    answers[qid] = answers[qid].filter(function(v) { return v !== val; });
+    btn.classList.remove("sel");
+    btn.querySelector(".chk-box").innerHTML = "";
+  } else {
+    answers[qid].push(val);
+    btn.classList.add("sel");
+    btn.querySelector(".chk-box").innerHTML = "&#10003;";
+  }
+}
+
+function pickScale(qid, val) {
+  answers[qid] = val;
+  document.querySelectorAll("#qb_" + qid + " .scale-btn").forEach(function(btn, i) {
+    btn.classList.toggle("sel", i + 1 === val);
+  });
+}
+
+function saveTextareas() {
+  sections[current].questions.filter(function(q) { return q.type === "text"; }).forEach(function(q) {
+    const el = document.querySelector("#qb_" + q.id + " textarea");
+    if (el) answers[q.id] = el.value;
+  });
+}
+
+function goNext() {
+  saveTextareas();
+  if (current === sections.length - 1) {
+    document.getElementById("main").style.display = "none";
+    document.getElementById("topbar").style.display = "none";
+    document.getElementById("thank-you").classList.add("show");
+    return;
+  }
+  current++;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
