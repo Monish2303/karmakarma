@@ -381,9 +381,31 @@ function saveTextareas() {
 function goNext() {
   saveTextareas();
   if (current === sections.length - 1) {
-    document.getElementById("main").style.display = "none";
-    document.getElementById("topbar").style.display = "none";
-    document.getElementById("thank-you").classList.add("show");
+    // Submit to Formspree
+    const btn = document.querySelector(".btn-next");
+    btn.textContent = "Submitting...";
+    btn.disabled = true;
+
+    const formData = new FormData();
+    Object.keys(answers).forEach(function(key) {
+      const val = answers[key];
+      formData.append(key, Array.isArray(val) ? val.join(", ") : val);
+    });
+
+    fetch("https://formspree.io/f/xgonplbl", {
+      method: "POST",
+      body: formData,
+      headers: { "Accept": "application/json" }
+    }).then(function(res) {
+      document.getElementById("main").style.display = "none";
+      document.getElementById("topbar").style.display = "none";
+      document.getElementById("thank-you").classList.add("show");
+    }).catch(function() {
+      // Show thank you even if submission fails
+      document.getElementById("main").style.display = "none";
+      document.getElementById("topbar").style.display = "none";
+      document.getElementById("thank-you").classList.add("show");
+    });
     return;
   }
   current++;
